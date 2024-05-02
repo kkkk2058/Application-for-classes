@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>학습 관리 시스템</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <a class="navbar-brand" href="/">LOGO</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/status">스테이터스</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/buket">장바구니</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/login">로그인</a>
+      </li>    
+    </ul>
+  </div>  
+</nav>
+
+<div class="jumbotron text-center" style="margin-bottom:0">
+  <h1>학습 관리 시스템</h1>
+  <p>수강신청을 위한 과목별 스테이터스와 과목별 장바구니 정보를 제공하고 있습니다.</p> 
+</div>
+
+<div class="container-fluid" style="margin-top:30px">
+  <div class="row">
+    <!-- 과목 스테이터스 표시 컬럼 -->
+    <div class="col-sm-6">
+      <h2 >1순위 과목 </h2>
+      <svg id="statusPolygon" width="400" height="400"></svg>
+    </div>
+
+    <!-- 장바구니 목록을 표시할 컬럼 -->
+    <div class="col-sm-6">
+      <div id="cart">
+        <!-- 장바구니 내용이 여기에 표시됩니다 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+  </div>
+</div>
+
+<div class="jumbotron text-center" style="margin-bottom:0">
+  <p>Footer</p>
+</div>
+
+</body>
+
+
+
+<script>
+  // 임의의 장바구니 목록 데이터
+  var cartItems = [
+    { name: "1순위 과목", price: "인간관계론" },
+    { name: "2순위 과목", price: "서버 프로그래밍" },
+    { name: "3순위 과목", price: "운영체제 및 실습" }
+  ];
+
+  // 장바구니 목록을 표시하는 함수
+  function displayCartItems() {
+    var cartHtml = '<h2>내 장바구니</h2><ul class="list-group">';
+
+    // 장바구니 항목들을 반복하여 HTML로 변환
+    cartItems.forEach(function(item) {
+      cartHtml += '<li class="list-group-item">' + item.name + ': ' + item.price + '</li>';
+    });
+
+    cartHtml += '</ul>';
+
+    // 장바구니 영역에 HTML 삽입
+    $('#cart').html(cartHtml);
+  }
+
+  // 페이지 로드 시 장바구니 목록 표시
+  $(document).ready(function() {
+    displayCartItems();
+  });
+
+
+
+  let scoresSet = [
+        [100, 100, 100, 100, 100], // 첫 번째 점수 세트 (모든 점수 100)
+        [70, 60, 70, 90, 50]       // 두 번째 점수 세트
+      ];
+      const labels = ["강의 시간", "과제량", "시험 난이도", "강의 평가", "학생 수"];
+      const colors = ["white", "skyblue"];
+      const maxScore = 100;
+      const center = { x: 200, y: 200 };
+      const radius = 150;
+      const labelOffset = 30;
+
+      function calculatePoints(scores, maxScore, center, radius, offset = 0) {
+        const points = [];
+        const angleIncrement = (Math.PI * 2) / scores.length;
+
+        scores.forEach((score, index) => {
+          const angle = angleIncrement * index - Math.PI / 2;
+          const scoreRadius = (score / maxScore) * radius + offset;
+          const x = center.x + scoreRadius * Math.cos(angle);
+          const y = center.y + scoreRadius * Math.sin(angle);
+          points.push({x, y});
+        });
+
+        return points;
+      }
+
+      function drawPolygon() {
+        const svg = document.getElementById('statusPolygon');
+        svg.innerHTML = '';
+
+        scoresSet.forEach((scores, idx) => {
+          const points = calculatePoints(scores, maxScore, center, radius);
+          const pointsAttr = points.map(p => `${p.x},${p.y}`).join(' ');
+
+          svg.innerHTML += `<polygon points="${pointsAttr}" style="fill:${colors[idx]};stroke:purple;stroke-width:1" />`;
+
+          if (idx === 0) {
+            const labelPoints = calculatePoints(scores, maxScore, center, radius, labelOffset);
+            labelPoints.forEach((point, labelIdx) => {
+              svg.innerHTML += `<text x="${point.x}" y="${point.y}" fill="black" text-anchor="middle" alignment-baseline="central">${labels[labelIdx]}</text>`;
+            });
+          }
+        });
+      }
+
+
+
+      drawPolygon();
+
+
+</script>
+
+</html>

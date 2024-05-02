@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Database Data</title>
+</head>
+<body>
+    <h1>Cart Data</h1>
+    <ul>
+        {% for item in cart %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+
+    <h1>Account Data</h1>
+    <ul>
+        {% for item in account %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+
+    <h1>Subscription Info</h1>
+    <ul>
+        {% for item in subs %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
