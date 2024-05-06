@@ -1,19 +1,52 @@
-# from fla import Flask, jsonify
-# import mysql.connector
+from flask import Flask, request, render_template, redirect, url_for, jsonify
+import pymysql
+import pandas as pd
+app = Flask(__name__)
 
-# conn = mysql.connector.connect(user='adm_1', password='ssu_serverprog', host='10.29.112.30', database='AppClassDB', port='3306')
-# cursor = conn.cursor()
-# cursor.execute("SELECT * FROM carttable")
-# cart = cursor.fetchall()
-# cursor.execute("SELECT * FROM logintable")
-# account = cursor.fetchall()
-# cursor.execute("SELECT * FROM subinfotable")
-# subs = cursor.fetchall()
+config = {
+    'user' : 'root',
+    'password' : 'rlaqhdbs3586!',
+    'host' : 'localhost',
+    'db' : 'AppClassDB',
+    'port' : 3306,
+    'cursorclass' : pymysql.cursors.DictCursor
+}
 
 
-# data_list = []
-# for row in [cart, account, subs]:
-#     print(row)
+@app.route('/')
+def home():
+    return render_template('firstPage.html')
 
-# cursor.close()
-# conn.close()
+@app.route('/status')
+def status():
+    return render_template('sstatus.html')
+
+@app.route('/buket')
+def buket():
+    return render_template('sbuket.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        print(username)
+        conn = pymysql.connect(**config)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM logintable WHERE id=%s AND pwd=%s", (username, password))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        if user:
+            print("login successed")
+            return redirect(url_for('home'))
+        else:
+            return render_template('slogin.html', login_failed=True)
+    return render_template('slogin.html')
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
