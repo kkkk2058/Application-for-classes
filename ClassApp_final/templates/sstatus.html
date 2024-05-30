@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>과목 정보 스테이터스</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+  .content {
+    flex: 1;
+  }
+  .footer {
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 10px 0;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+  }
+</style>
+
+
+<body>
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <a class="navbar-brand" href="/">LOGO</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="collapsibleNavbar">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/status">스테이터스</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/buket">장바구니</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/cartvis">내 장바구니 정보</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/login">로그인</a>
+      </li>    
+      {% if user_info %}
+      <li class="nav-item">
+        <a class="nav-link" href="/logout">로그아웃</a>
+      </li>    
+      {% endif %}
+    </ul>
+  </div>  
+</nav>
+
+
+
+
+
+<div class="container-fluid" style="margin-top:30px">
+  <div class="row"> 
+
+    <div class="container-fluid" style="margin-top:30px">
+      <div class="row"> 
+    
+        <!-- 과목 검색 및 결과 표시 컬럼 -->
+        <div class="col-sm-6">
+          <form>
+            <div class="form-group">
+              <label for="subject">과목 검색:</label>
+              <input type="text" class="form-control" id="subject" placeholder="과목명을 입력하세요">
+            </div>
+            <button type="submit" class="btn btn-primary">검색</button>
+          </form>
+      
+          <!-- 검색 결과를 표시할 영역 -->
+          <div id="searchResult" style="margin-top:20px;">
+            <!-- 여기에 검색 결과가 표시됩니다 -->
+          </div>
+        </div>
+    
+        <!-- 과목 스테이터스 표시 컬럼 -->
+        <div class="col-sm-6">
+          <h4>과목 스테이터스</h4>
+          <svg id="statusPolygon" width="400" height="400"></svg>
+        </div>
+    
+      </div>
+    </div>
+    
+<!-- Footer -->
+
+  <footer class="footer">
+    <p>&copy; 2024 스포츠 능력 관리 시스템. All rights reserved.</p>
+    <p>
+        <a href="">kkkk2058@naver.com</a>
+        <a href="">개인정보 처리방침</a> |
+        <a href="">이용 약관</a>
+    </p>
+    <p>
+        <a href="https://github.com/kkkk2058" target="_blank">GitHub</a> |
+        <a href="https://www.instagram.com/hun_sse/" target="_blank">Instagram</a>
+    </p>
+</footer>
+
+</body>
+
+
+<!-- JavaScript 코드 추가 -->
+<script>
+  $(document).ready(function(){
+    // 검색 버튼 클릭 시 실행될 함수
+    $('form').submit(function(event) {
+      event.preventDefault(); // 기본 동작 방지
+      var subjectName = $('#subject').val(); // 입력된 과목명 가져오기
+
+      $.get('/subject/' + subjectName, function(data) {
+        if (data.error) {
+          $('#searchResult').html('<p>' + data.error + '</p>');
+        } else {
+          let scoresSet = [
+            [100, 100, 100, 100, 100], // 첫 번째 점수 세트 (모든 점수 100)
+            [
+              data.lectureRating,
+              data.assignmentCount,
+              data.examDifficulty,
+              parseFloat(data.lectureTime), // Assuming 'lecture session' is stored in 'lectureRating'
+              parseFloat(data.studentCount) // Assuming 'projects_amt' is stored in 'assignmentCount'
+            ]
+          ];
+
+          const labels = ["전체평점", "과제량", "시험 난이도", "강의 시간", "팀플"];
+          const colors = ["white", "skyblue"];
+          const maxScore = 100;
+          const center = { x: 200, y: 200 };
+          const radius = 150;
+          const labelOffset = 30;
+
+          function calculatePoints(scores, maxScore, center, radius, offset = 0) {
+            const points = [];
+            const angleIncrement = (Math.PI * 2) / scores.length;
+
+            scores.forEach((score, index) => {
+              const angle = angleIncrement * index - Math.PI / 2;
+              const scoreRadius = (score / maxScore) * radius + offset;
+              const x = center.x + scoreRadius * Math.cos(angle);
+              const y = center.y + scoreRadius * Math.sin(angle);
+              points.push({x, y});
+            });
+
+            return points;
+          }
+
+          function drawPolygon() {
+            const svg = document.getElementById('statusPolygon');
+            svg.innerHTML = '';
+
+            scoresSet.forEach((scores, idx) => {
+              const points = calculatePoints(scores, maxScore, center, radius);
+              const pointsAttr = points.map(p => `${p.x},${p.y}`).join(' ');
+
+              svg.innerHTML += `<polygon points="${pointsAttr}" style="fill:${colors[idx]};stroke:purple;stroke-width:1" />`;
+
+              if (idx === 0) {
+                const labelPoints = calculatePoints(scores, maxScore, center, radius, labelOffset);
+                labelPoints.forEach((point, labelIdx) => {
+                  svg.innerHTML += `<text x="${point.x}" y="${point.y}" fill="black" text-anchor="middle" alignment-baseline="central">${labels[labelIdx]}</text>`;
+                });
+              }
+            });
+          }
+
+          drawPolygon();
+
+          // 과목 정보를 HTML 형식으로 생성하여 검색 결과 영역에 표시합니다.
+          var subjectHtml = '<ul class="nav flex-column">';
+          subjectHtml += '<li class="nav-item"><a class="nav-link" href="#">강의 평점: ' + data.lectureRating + '/100</a></li>';
+          subjectHtml += '<li class="nav-item"><a class="nav-link" href="#">과제량: ' + data.assignmentCount + '/100</a></li>';
+          subjectHtml += '<li class="nav-item"><a class="nav-link" href="#">시험 난이도: ' + data.examDifficulty + '/100</a></li>';
+          subjectHtml += '<li class="nav-item"><a class="nav-link" href="#">강의 시간: ' + data.lectureTime + '/100</a></li>';
+          subjectHtml += '<li class="nav-item"><a class="nav-link" href="#">팀플: ' + data.studentCount + '/100</a></li>';
+          subjectHtml += '</ul>';
+
+          $('#searchResult').html(subjectHtml);
+        }
+      });
+    });
+  });
+</script>
+</html>

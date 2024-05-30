@@ -1,0 +1,26 @@
+
+.centered-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.img-responsive {
+  width: 100%;
+  height: auto;
+}
+
+.footer {
+        background-color: #f1f1f1;
+        text-align: center;
+        padding: 20px 0;
+    }
+.footer a {
+        color: #000;
+        text-decoration: none;
+        margin: 0 10px;
+    }
+.footer a:hover {
+        text-decoration: underline;
+    }
+

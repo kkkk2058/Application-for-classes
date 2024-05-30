@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>학습 관리 시스템</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="index.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+      .btn-priority-1 {
+          background-color: #007bff; /* 밝은 파란색 */
+          color: white;
+      }
+      .btn-priority-2 {
+          background-color: #3498db; /* 중간 하늘색 */
+          color: white;
+      }
+      .btn-priority-3 {
+          background-color: #5dade2; /* 밝은 하늘색 */
+          color: white;
+      }
+      .btn-priority-4 {
+          background-color: #85c1e9; /* 더 밝은 하늘색 */
+          color: white;
+      }
+      .btn-priority-5 {
+          background-color: #aed6f1; /* 거의 흰색에 가까운 하늘색 */
+          color: white;
+      }
+  </style>
+  
+  
+</head>
+<body>
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <a class="navbar-brand" href="/">LOGO</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/status">스테이터스</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/buket">장바구니</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/slogin">로그인</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/cartvis">내 장바구니 정보</a>
+            </li>
+            {% if user_info %}
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">로그아웃</a>
+            </li>    
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+<div class="container" style="margin-top:30px">
+    <div class="row">
+        <div class="col-sm-4">
+            <h2>내 장바구니 정보</h2>
+            <!-- 우선순위 버튼 추가 -->
+            <div class="btn-group-vertical" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-priority-1">내 장바구니 1순위</button>
+                <button type="button" class="btn btn-priority-2">내 장바구니 2순위</button>
+                <button type="button" class="btn btn-priority-3">내 장바구니 3순위</button>
+                <button type="button" class="btn btn-priority-4">내 장바구니 4순위</button>
+                <button type="button" class="btn btn-priority-5">내 장바구니 5순위</button>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <!-- 시각화 내용을 표시할 영역 -->
+            <div id="visualization" class="mt-4"></div>
+        </div>
+    </div>
+</div>
+<div class="jumbotron text-center" style="margin-bottom:0">
+    <footer class="footer">
+      <p>&copy; 2024 스포츠 능력 관리 시스템. All rights reserved.</p>
+      <p>
+          <a href="">kkkk2058@naver.com</a>
+          <a href="">개인정보 처리방침</a> |
+          <a href="">이용 약관</a>
+      </p>
+      <p>
+          <a href="https://github.com/kkkk2058" target="_blank">GitHub</a> |
+          <a href="https://www.instagram.com/hun_sse/" target="_blank">Instagram</a>
+      </p>
+  </footer>
+  </div>
+<script>
+$(document).ready(function(){
+    loadVisualization(1); // 기본 우선순위 1로 로드
+    
+    $(".btn-group-vertical button").click(function(){
+        var priority = $(this).text().match(/\d+/)[0]; // 버튼의 텍스트에서 숫자 추출
+        loadVisualization(priority);
+    });
+});
+
+function loadVisualization(priority) {
+    $.ajax({
+        url: "/cartvis/get_vis_html",
+        type: "get",
+        data: { priority: priority },
+        success: function(response){
+            $("#visualization").html(response); // 응답으로 받은 HTML을 영역에 삽입
+        }
+    });
+}
+
+</script>
+</body>
+</html>
