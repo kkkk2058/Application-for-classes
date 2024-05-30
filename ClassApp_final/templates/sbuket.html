@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>과목 정보 스테이터스</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark navbar-custom">
+    <a class="navbar-brand" href="/">LOGO</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/status">스테이터스</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/buket">장바구니</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/cartvis">내 장바구니 정보</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/login">로그인</a>
+            </li>
+            {% if user_info %}
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">로그아웃</a>
+            </li>    
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+<div class="container container-custom mt-6">
+    <div class="row">
+        <div class="col-md-6">
+            <h4>과목 검색</h4>
+            <input type="text" id="searchInput" class="form-control" placeholder="과목을 검색하세요">
+            <button onclick="searchCourses()" class="btn btn-primary mt-2">검색</button>
+            <table class="table table-hover mt-3">
+                <thead>
+                <tr>
+                    <th>과목 이름</th>
+                    <th>경쟁률</th>
+                    <th>순위별 정보</th>
+                    <th>학년별 정보</th>
+                    <th>Priority 선택</th>
+                    <th>장바구니 추가</th>
+                </tr>
+                </thead>
+                <tbody id="coursesList">
+                <!-- 검색 결과가 여기에 나타납니다 -->
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h4>내 장바구니</h4>
+            <ul id="cartList" class="list-group">
+                <!-- 장바구니 목록 -->
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+<style>
+    .navbar-custom {
+        margin-bottom: 20px;
+        /* 네비게이션 바와 아래 컨텐츠 사이의 간격을 20px로 설정 */
+    }
+
+    .container-custom {
+        margin-top: 20px;
+        /* 컨테이너의 상단 마진을 추가하여 네비게이션 바로부터의 간격을 조정 */
+    }
+</style>
+{% if user_info %}
+<script>
+    let cart = []; // 장바구니 배열을 정의하고 초기화합니다.
+    let courses = []; // 서버에서 가져온 데이터를 담을 배열
+
+    // 서버에서 데이터를 가져오는 함수
+    async function fetchCourses() {
+        try {
+            const response = await fetch('/buket/get_subs'); // get_subs 엔드포인트에서 데이터를 가져옴
+            const data = await response.json(); // JSON 형식으로 파싱
+            courses = data; // 가져온 데이터를 courses 배열에 저장
+            searchCourses(); // 데이터 가져온 후 화면 업데이트
+            fetchCart(); // Fetch cart contents
+        } catch (error) {
+            console.error('데이터를 가져오는 중 오류 발생:', error);
+        }
+    }
+
+    async function fetchCart() {
+        try {
+            const response = await fetch('/buket/get_cart'); // get_cart 엔드포인트에서 데이터를 가져옴
+            const data = await response.json(); // JSON 형식으로 파싱
+            cart = data; // 가져온 데이터를 cart 배열에 저장
+            updateCart(); // 데이터 가져온 후 장바구니 업데이트
+        } catch (error) {
+            console.error('장바구니 데이터를 가져오는 중 오류 발생:', error);
+        }
+    }
+
+    function searchCourses() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const filteredCourses = courses.filter(course => course.name.toLowerCase().includes(input));
+        const coursesList = document.getElementById('coursesList');
+        coursesList.innerHTML = '';
+
+        filteredCourses.forEach(course => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${course.name}</td>
+                            <td>${course.competition}</td>
+                            <td>${course.rankInfo.replace(/,\s+/g, ', ')}</td>
+                            <td>${course.gradeInfo}</td>
+                            <td>
+                                <select class="form-control form-control-sm" id="priority-${course.id}">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </td>
+                            <td><button onclick="addToCart(${course.id})" class="btn btn-success btn-sm">장바구니에 추가</button></td>`;
+            coursesList.appendChild(row);
+        });
+    }
+
+    function addToCart(courseId) {
+        const priority = document.getElementById(`priority-${courseId}`).value;
+        $.ajax({
+            url: '/buket/add',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ sbj_id: courseId, priority: priority }),
+            success: function(response) {
+                if (response.message) {
+                    alert(response.message); // Display success message
+                    fetchCart(); // Re-fetch cart to update the list
+                } else {
+                    alert('Failed to add course to cart');
+                }
+            },
+            error: function(error) {
+                if (error.status === 409) {  // Conflict error code
+                    alert('Course already in cart');
+                } else {
+                    alert('Error adding course to cart');
+                }
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    function removeFromCart(courseId) {
+        $.ajax({
+            url: '/buket/remove',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ sbj_id: courseId }),
+            success: function(response) {
+                fetchCart(); // Re-fetch cart to update the list
+            },
+            error: function(error) {
+                alert('Error removing course from cart');
+                console.error(error);
+            }
+        });
+    }
+
+    function updateCart() {
+        const cartList = document.getElementById('cartList');
+        cartList.innerHTML = '';
+        cart.forEach(course => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.innerHTML = `${course.subject} 
+                            <button onclick="removeFromCart(${course.sbj_id})" class="btn btn-sm btn-danger float-right">장바구니에서 제거</button>`;
+            cartList.appendChild(li);
+        });
+    }
+
+    // 페이지 로드 시 서버에서 데이터를 가져옵니다.
+    window.onload = fetchCourses;
+</script>
+{% endif %}
+</html>
