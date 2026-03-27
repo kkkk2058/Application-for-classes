@@ -1,1 +1,10 @@
-# Application-for-classes
+<img width="1471" height="1116" alt="image" src="https://github.com/user-attachments/assets/16a0fb53-d3bb-40a0-90c7-dad5b54da197" />
+<img width="1489" height="1116" alt="image" src="https://github.com/user-attachments/assets/a047571e-bd24-443d-8428-cbc3c3c9f590" />
+<img width="1475" height="1116" alt="image" src="https://github.com/user-attachments/assets/e6cb9a50-0cfd-4339-bb8b-3120220e0e0c" />
+<img width="1444" height="1106" alt="image" src="https://github.com/user-attachments/assets/3c720226-7e7d-4eee-8668-e0cfe6c897c9" />
+<img width="1500" height="1046" alt="image" src="https://github.com/user-attachments/assets/33bf61f1-7e92-4bf9-a92f-0768286cc4ec" />
+<img width="1500" height="1061" alt="image" src="https://github.com/user-attachments/assets/e11fb5db-9ede-438f-835c-48960da50eab" />
+<img width="1531" height="1089" alt="image" src="https://github.com/user-attachments/assets/d7dc2458-33f2-48a3-83ea-6148408112cc" />
+<img width="1500" height="1061" alt="image" src="https://github.com/user-attachments/assets/f80a7927-fe2f-4338-968c-f5b045c4816e" />
+<img width="1500" height="850" alt="image" src="https://github.com/user-attachments/assets/ec59ecfe-ef0e-4f47-91d4-17feb470b1b6" />
+<img width="1475" height="980" alt="image" src="https://github.com/user-attachments/assets/e7cead0c-3185-44de-a598-9d5d38713798" />
